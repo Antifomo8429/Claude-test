@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>辦公室值日生輪值</title>
+  <style>
+    :root {
+      --primary: #4f7cff;
+      --primary-dark: #3a63e0;
+      --accent: #ff6b6b;
+      --bg: #f0f4ff;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --shadow: 0 2px 12px rgba(79,124,255,0.10);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 32px;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #7b5ea7 100%);
+      color: #fff;
+      padding: 20px 20px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .app-header::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; left: 0; right: 0;
+      height: 40px;
+      background: var(--bg);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    }
+    .app-header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.04em; }
+    .app-header .subtitle { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+
+    /* Month navigator */
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+    .month-nav button {
+      background: rgba(255,255,255,0.25);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .month-nav button:hover { background: rgba(255,255,255,0.4); }
+    .month-nav .month-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Main content ── */
+    .content { padding: 28px 16px 0; }
+
+    /* ── Section title ── */
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+      margin-top: 24px;
+    }
+
+    /* ── Desk grid ── */
+    .desk-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .desk-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 10px 12px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .desk-card:active { transform: scale(0.96); }
+    .desk-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79,124,255,0.18);
+    }
+    .desk-number {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin: 0 auto 6px;
+    }
+    .desk-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      line-height: 1.3;
+    }
+    .duty-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      margin-top: 5px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Desk color palette */
+    .color-0 .desk-number { background: #fff0f0; color: #e55353; }
+    .color-1 .desk-number { background: #fff7e6; color: #e89020; }
+    .color-2 .desk-number { background: #f0fff4; color: #22a65c; }
+    .color-3 .desk-number { background: #e8f4ff; color: #2e86de; }
+    .color-4 .desk-number { background: #f5f0ff; color: #7b5ea7; }
+    .color-5 .desk-number { background: #fff0f8; color: #d63384; }
+
+    /* ── Rotation visual ── */
+    .rotation-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-top: 0;
+    }
+    .rotation-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .rotation-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg);
+      border-radius: 99px;
+      padding: 5px 12px 5px 5px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .rotation-chip .dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+    .rotation-arrow {
+      color: var(--text-sub);
+      font-size: 0.85rem;
+    }
+    .rotation-note {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      margin-top: 10px;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* ── Task panel ── */
+    .task-panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .task-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-tab {
+      flex: 1;
+      padding: 12px 0;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: color 0.2s, border-bottom 0.2s;
+      border-bottom: 3px solid transparent;
+      user-select: none;
+    }
+    .task-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .task-list { padding: 4px 0 8px; }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 11px 18px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item.done { opacity: 0.55; }
+    .task-item.done .task-text { text-decoration: line-through; }
+    .task-check {
+      width: 22px; height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .task-item.done .task-check {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .task-check-icon { display: none; color: #fff; font-size: 0.7rem; font-weight: 900; }
+    .task-item.done .task-check-icon { display: block; }
+    .task-num {
+      width: 20px; height: 20px;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .task-text {
+      font-size: 0.88rem;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    /* ── Notes card ── */
+    .notes-card {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .notes-card .note-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .notes-card ul {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .notes-card li {
+      font-size: 0.82rem;
+      color: #78350f;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .notes-card li::before {
+      content: '•';
+      color: var(--warning);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── Desk detail modal-like panel ── */
+    .detail-panel {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 32px rgba(0,0,0,0.15);
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+      max-height: 82vh;
+      overflow-y: auto;
+    }
+    .detail-panel.open { transform: translateY(0); }
+    .detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .detail-overlay.open { opacity: 1; pointer-events: all; }
+    .detail-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      margin: 12px auto 0;
+    }
+    .detail-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .detail-desk-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+    .detail-desk-info h2 { font-size: 1rem; font-weight: 700; }
+    .detail-desk-info p { font-size: 0.78rem; color: var(--text-sub); margin-top: 2px; }
+    .detail-content { padding: 16px 20px 32px; }
+    .detail-section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      margin: 16px 0 8px;
+    }
+    .detail-section-title:first-child { margin-top: 0; }
+
+    /* progress bar */
+    .progress-wrap {
+      background: var(--bg);
+      border-radius: 99px;
+      height: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #7b5ea7);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      display: flex; justify-content: space-between;
+    }
+
+    /* ── Floating today button ── */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--primary), #7b5ea7);
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      padding: 12px 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 4px 18px rgba(79,124,255,0.4);
+      cursor: pointer;
+      z-index: 50;
+      display: flex; align-items: center; gap: 7px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fab:active { transform: scale(0.95); box-shadow: 0 2px 10px rgba(79,124,255,0.3); }
+
+    /* responsive: wider screens */
+    @media (min-width: 480px) {
+      .content { max-width: 440px; margin: 0 auto; }
+      .app-header { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="app-header">
+  <h1>辦公室值日生</h1>
+  <div class="subtitle">六桌順時鐘每月輪值</div>
+  <div class="month-nav">
+    <button id="prevBtn" aria-label="上個月">&#8592;</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button id="nextBtn" aria-label="下個月">&#8594;</button>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="content">
+
+  <!-- Desk grid -->
+  <div class="section-title">本月桌次與值日桌</div>
+  <div class="desk-grid" id="deskGrid"></div>
+
+  <!-- Rotation order -->
+  <div class="section-title">順時鐘輪值順序</div>
+  <div class="rotation-wrap">
+    <div class="rotation-row" id="rotationRow"></div>
+    <div class="rotation-note">&#x1f501; 每月向右輪轉一格，依序循環</div>
+  </div>
+
+  <!-- Task checklist -->
+  <div class="section-title">任務清單</div>
+  <div class="task-panel">
+    <div class="task-tabs">
+      <div class="task-tab active" data-tab="daily">每日任務</div>
+      <div class="task-tab" data-tab="weekly">每週任務</div>
+    </div>
+    <div class="task-list" id="taskList"></div>
+  </div>
+
+  <!-- Notes -->
+  <div class="section-title">補充與備註</div>
+  <div class="notes-card">
+    <div class="note-title">&#x26a0;&#xfe0f; 注意事項</div>
+    <ul>
+      <li>冰箱不要放開封後的食物飲料</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- Desk detail bottom sheet -->
+<div class="detail-overlay" id="overlay"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-handle"></div>
+  <div class="detail-header">
+    <div class="detail-desk-num" id="detailNum"></div>
+    <div class="detail-desk-info">
+      <h2 id="detailTitle"></h2>
+      <p id="detailSub"></p>
+    </div>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="todayBtn">&#x1f4c5; 回到本月</button>
+
+<script>
+  // ── Data ──────────────────────────────────────────────────────────────────
+  const DESKS = [
+    { id: 1, name: '1號桌' },
+    { id: 2, name: '2號桌' },
+    { id: 3, name: '3號桌' },
+    { id: 4, name: '4號桌' },
+    { id: 5, name: '5號桌' },
+    { id: 6, name: '6號桌' },
+  ];
+
+  const DESK_COLORS = [
+    { bg: '#fff0f0', text: '#e55353' },
+    { bg: '#fff7e6', text: '#e89020' },
+    { bg: '#f0fff4', text: '#22a65c' },
+    { bg: '#e8f4ff', text: '#2e86de' },
+    { bg: '#f5f0ff', text: '#7b5ea7' },
+    { bg: '#fff0f8', text: '#d63384' },
+  ];
+
+  const DAILY_TASKS = [
+    '整理前一天報紙',
+    '清潔咖啡器具、關閉咖啡機',
+    '擦拭交誼廳、吧台桌面',
+    '清洗整理所有公用杯盤',
+    '整理垃圾桶垃圾',
+    '公用區吸塵',
+  ];
+
+  const WEEKLY_TASKS = [
+    '週會座位區準備',
+    '掃地機器人清理與換水',
+    '飲用水訂購',
+    '冰箱整理',
+    '週會後場地清潔',
+    '零食區整理',
+  ];
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  // Base month: 2026-01 → desk 1 is duty (index 0 offset)
+  const BASE_YEAR = 2026;
+  const BASE_MONTH = 1; // January
+
+  let viewYear, viewMonth;
+  let activeTab = 'daily';
+  let taskState = { daily: {}, weekly: {} }; // { taskIndex: bool }
+  let selectedDesk = null;
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function monthDiff(y, m) {
+    return (y - BASE_YEAR) * 12 + (m - BASE_MONTH);
+  }
+
+  function dutyDeskIndex(y, m) {
+    const diff = monthDiff(y, m);
+    return ((diff % 6) + 6) % 6; // 0-based, clockwise
+  }
+
+  function formatMonth(y, m) {
+    return `${y} 年 ${m} 月`;
+  }
+
+  function isCurrentMonth(y, m) {
+    const now = new Date();
+    return y === now.getFullYear() && m === (now.getMonth() + 1);
+  }
+
+  function storageKey(y, m, tab) {
+    return `duty_${y}_${m}_${tab}`;
+  }
+
+  function loadTaskState(y, m) {
+    taskState.daily = JSON.parse(localStorage.getItem(storageKey(y, m, 'daily')) || '{}');
+    taskState.weekly = JSON.parse(localStorage.getItem(storageKey(y, m, 'weekly')) || '{}');
+  }
+
+  function saveTaskState(y, m) {
+    localStorage.setItem(storageKey(y, m, 'daily'), JSON.stringify(taskState.daily));
+    localStorage.setItem(storageKey(y, m, 'weekly'), JSON.stringify(taskState.weekly));
+  }
+
+  function doneCount(tab) {
+    const state = taskState[tab];
+    return Object.values(state).filter(Boolean).length;
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  function renderHeader() {
+    document.getElementById('monthLabel').textContent = formatMonth(viewYear, viewMonth);
+  }
+
+  function renderDeskGrid() {
+    const duty = dutyDeskIndex(viewYear, viewMonth);
+    const grid = document.getElementById('deskGrid');
+    grid.innerHTML = '';
+
+    DESKS.forEach((desk, i) => {
+      const isDuty = i === duty;
+      const color = DESK_COLORS[i];
+      const card = document.createElement('div');
+      card.className = `desk-card color-${i}${selectedDesk === i ? ' selected' : ''}`;
+      card.innerHTML = `
+        <div class="desk-number" style="background:${color.bg};color:${color.text}">${desk.id}</div>
+        <div class="desk-name">${desk.name}</div>
+        ${isDuty ? '<span class="duty-badge">值日桌 ✓</span>' : ''}
+      `;
+      card.addEventListener('click', () => openDetail(i));
+      grid.appendChild(card);
+    });
+  }
+
+  function renderRotation() {
+    const duty = dutyDeskIndex(viewYear, viewMonth);
+    const row = document.getElementById('rotationRow');
+    row.innerHTML = '';
+
+    for (let i = 0; i < 6; i++) {
+      const deskIdx = (duty + i) % 6;
+      const color = DESK_COLORS[deskIdx];
+      const chip = document.createElement('div');
+      chip.className = 'rotation-chip';
+      chip.innerHTML = `
+        <div class="dot" style="background:${color.bg};color:${color.text}">${deskIdx + 1}</div>
+        <span>${i === 0 ? '本月' : `+${i}月`}</span>
+      `;
+      row.appendChild(chip);
+
+      if (i < 5) {
+        const arrow = document.createElement('span');
+        arrow.className = 'rotation-arrow';
+        arrow.textContent = '→';
+        row.appendChild(arrow);
+      }
+    }
+  }
+
+  function renderTasks() {
+    const list = document.getElementById('taskList');
+    list.innerHTML = '';
+    const tasks = activeTab === 'daily' ? DAILY_TASKS : WEEKLY_TASKS;
+    const state = taskState[activeTab];
+    const total = tasks.length;
+    const done = doneCount(activeTab);
+
+    tasks.forEach((task, i) => {
+      const isDone = !!state[i];
+      const item = document.createElement('div');
+      item.className = `task-item${isDone ? ' done' : ''}`;
+      item.innerHTML = `
+        <div class="task-check" data-i="${i}">
+          <span class="task-check-icon">✓</span>
+        </div>
+        <div class="task-num">${i + 1}</div>
+        <div class="task-text">${task}</div>
+      `;
+      item.querySelector('.task-check').addEventListener('click', () => toggleTask(i));
+      list.appendChild(item);
+    });
+  }
+
+  function renderTabs() {
+    document.querySelectorAll('.task-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.tab === activeTab);
+    });
+  }
+
+  function renderAll() {
+    renderHeader();
+    renderDeskGrid();
+    renderRotation();
+    renderTabs();
+    renderTasks();
+  }
+
+  // ── Interactions ──────────────────────────────────────────────────────────
+  function toggleTask(i) {
+    const state = taskState[activeTab];
+    state[i] = !state[i];
+    saveTaskState(viewYear, viewMonth);
+    renderTasks();
+  }
+
+  function openDetail(deskIdx) {
+    selectedDesk = deskIdx;
+    renderDeskGrid();
+
+    const duty = dutyDeskIndex(viewYear, viewMonth);
+    const desk = DESKS[deskIdx];
+    const color = DESK_COLORS[deskIdx];
+    const isDuty = deskIdx === duty;
+
+    // Compute when this desk's next duty is
+    const monthsUntil = ((deskIdx - duty) % 6 + 6) % 6;
+    let dutyInfo;
+    if (monthsUntil === 0) {
+      dutyInfo = `本月 (${formatMonth(viewYear, viewMonth)}) 值日桌 ✓`;
+    } else {
+      let fy = viewYear, fm = viewMonth + monthsUntil;
+      while (fm > 12) { fm -= 12; fy++; }
+      dutyInfo = `${monthsUntil} 個月後輪到 (${formatMonth(fy, fm)})`;
+    }
+
+    document.getElementById('detailNum').textContent = desk.id;
+    document.getElementById('detailNum').style.background = color.bg;
+    document.getElementById('detailNum').style.color = color.text;
+    document.getElementById('detailTitle').textContent = desk.name;
+    document.getElementById('detailSub').textContent = dutyInfo;
+
+    // Progress
+    const dDone = doneCount('daily');
+    const wDone = doneCount('weekly');
+    const dTotal = DAILY_TASKS.length;
+    const wTotal = WEEKLY_TASKS.length;
+
+    let html = '';
+
+    if (isDuty) {
+      html += `
+        <div class="detail-section-title">每日任務進度</div>
+        <div class="progress-label"><span>已完成 ${dDone}/${dTotal}</span><span>${Math.round(dDone/dTotal*100)}%</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${dDone/dTotal*100}%"></div></div>
+
+        <div class="detail-section-title">每週任務進度</div>
+        <div class="progress-label"><span>已完成 ${wDone}/${wTotal}</span><span>${Math.round(wDone/wTotal*100)}%</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${wDone/wTotal*100}%"></div></div>
+      `;
+    }
+
+    html += `<div class="detail-section-title">每日任務</div>`;
+    DAILY_TASKS.forEach((t, i) => {
+      const done = isDuty && !!taskState.daily[i];
+      html += `<div class="task-item${done ? ' done' : ''}">
+        <div class="task-num">${i+1}</div>
+        <div class="task-text">${t}</div>
+      </div>`;
+    });
+
+    html += `<div class="detail-section-title">每週任務</div>`;
+    WEEKLY_TASKS.forEach((t, i) => {
+      const done = isDuty && !!taskState.weekly[i];
+      html += `<div class="task-item${done ? ' done' : ''}">
+        <div class="task-num">${i+1}</div>
+        <div class="task-text">${t}</div>
+      </div>`;
+    });
+
+    document.getElementById('detailContent').innerHTML = html;
+    document.getElementById('detailPanel').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  function closeDetail() {
+    selectedDesk = null;
+    document.getElementById('detailPanel').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+    renderDeskGrid();
+  }
+
+  // ── Event listeners ───────────────────────────────────────────────────────
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    viewMonth--;
+    if (viewMonth < 1) { viewMonth = 12; viewYear--; }
+    loadTaskState(viewYear, viewMonth);
+    renderAll();
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    viewMonth++;
+    if (viewMonth > 12) { viewMonth = 1; viewYear++; }
+    loadTaskState(viewYear, viewMonth);
+    renderAll();
+  });
+
+  document.getElementById('todayBtn').addEventListener('click', () => {
+    const now = new Date();
+    viewYear = now.getFullYear();
+    viewMonth = now.getMonth() + 1;
+    loadTaskState(viewYear, viewMonth);
+    renderAll();
+  });
+
+  document.getElementById('overlay').addEventListener('click', closeDetail);
+
+  document.querySelectorAll('.task-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      activeTab = tab.dataset.tab;
+      renderTabs();
+      renderTasks();
+    });
+  });
+
+  // Swipe down to close detail panel
+  let touchStartY = 0;
+  const panel = document.getElementById('detailPanel');
+  panel.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+  panel.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 80) closeDetail();
+  }, { passive: true });
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  (function init() {
+    const now = new Date();
+    viewYear = now.getFullYear();
+    viewMonth = now.getMonth() + 1;
+    loadTaskState(viewYear, viewMonth);
+    renderAll();
+  })();
+</script>
+</body>
+</html>
