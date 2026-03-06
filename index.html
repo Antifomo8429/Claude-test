@@ -646,7 +646,7 @@
   let activeTab = 'daily';
   let taskState = { daily: {}, weekly: {} };
   let selectedDesk = null;
-  let openSheet = null; // 'detail' | 'stats' | 'lb'
+  let activeSheet = null; // 'detail' | 'stats' | 'lb'
 
   // ── Desk names ────────────────────────────────────────────────────────────
   function getDeskNames() {
@@ -858,19 +858,12 @@
   }
 
   // ── Sheet management ──────────────────────────────────────────────────────
-  function openSheet(sheetId) {
-    closeAllSheets(false);
-    document.getElementById(sheetId).classList.add('open');
-    document.getElementById('overlay').classList.add('open');
-    openSheet = sheetId;
-  }
-
   function closeAllSheets(clearSelected = true) {
     ['detailSheet', 'statsSheet', 'lbSheet'].forEach(id => {
       document.getElementById(id).classList.remove('open');
     });
     document.getElementById('overlay').classList.remove('open');
-    openSheet = null;
+    activeSheet = null;
     if (clearSelected) {
       selectedDesk = null;
       renderDeskGrid();
