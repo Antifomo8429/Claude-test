@@ -27,7 +27,7 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding-bottom: 32px;
+      padding-bottom: 100px;
     }
 
     /* ── Header ── */
@@ -46,8 +46,31 @@
       background: var(--bg);
       border-radius: 50% 50% 0 0 / 100% 100% 0 0;
     }
-    .app-header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.04em; }
-    .app-header .subtitle { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .header-top h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.04em; }
+    .header-top .subtitle { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .header-btn {
+      background: rgba(255,255,255,0.22);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-btn:hover { background: rgba(255,255,255,0.38); }
 
     /* Month navigator */
     .month-nav {
@@ -118,11 +141,19 @@
       font-weight: 800;
       margin: 0 auto 6px;
     }
-    .desk-name {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-sub);
+    .desk-person {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
       line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .desk-label {
+      font-size: 0.68rem;
+      color: var(--text-sub);
+      margin-top: 1px;
     }
     .duty-badge {
       display: inline-block;
@@ -136,21 +167,12 @@
       letter-spacing: 0.04em;
     }
 
-    /* Desk color palette */
-    .color-0 .desk-number { background: #fff0f0; color: #e55353; }
-    .color-1 .desk-number { background: #fff7e6; color: #e89020; }
-    .color-2 .desk-number { background: #f0fff4; color: #22a65c; }
-    .color-3 .desk-number { background: #e8f4ff; color: #2e86de; }
-    .color-4 .desk-number { background: #f5f0ff; color: #7b5ea7; }
-    .color-5 .desk-number { background: #fff0f8; color: #d63384; }
-
     /* ── Rotation visual ── */
     .rotation-wrap {
       background: var(--card);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 18px;
-      margin-top: 0;
     }
     .rotation-row {
       display: flex;
@@ -175,15 +197,11 @@
       font-size: 0.7rem;
       font-weight: 800;
     }
-    .rotation-arrow {
-      color: var(--text-sub);
-      font-size: 0.85rem;
-    }
+    .rotation-arrow { color: var(--text-sub); font-size: 0.85rem; }
     .rotation-note {
       font-size: 0.72rem;
       color: var(--text-sub);
       margin-top: 10px;
-      display: flex; align-items: center; gap: 5px;
     }
 
     /* ── Task panel ── */
@@ -205,14 +223,11 @@
       font-weight: 600;
       color: var(--text-sub);
       cursor: pointer;
-      transition: color 0.2s, border-bottom 0.2s;
       border-bottom: 3px solid transparent;
       user-select: none;
+      transition: color 0.2s;
     }
-    .task-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
+    .task-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
     .task-list { padding: 4px 0 8px; }
     .task-item {
       display: flex;
@@ -220,7 +235,6 @@
       gap: 12px;
       padding: 11px 18px;
       border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
     }
     .task-item:last-child { border-bottom: none; }
     .task-item.done { opacity: 0.55; }
@@ -231,14 +245,11 @@
       border-radius: 50%;
       flex-shrink: 0;
       cursor: pointer;
-      transition: all 0.18s;
       display: flex; align-items: center; justify-content: center;
       margin-top: 1px;
+      transition: all 0.18s;
     }
-    .task-item.done .task-check {
-      background: var(--success);
-      border-color: var(--success);
-    }
+    .task-item.done .task-check { background: var(--success); border-color: var(--success); }
     .task-check-icon { display: none; color: #fff; font-size: 0.7rem; font-weight: 900; }
     .task-item.done .task-check-icon { display: block; }
     .task-num {
@@ -252,11 +263,7 @@
       flex-shrink: 0;
       margin-top: 1px;
     }
-    .task-text {
-      font-size: 0.88rem;
-      line-height: 1.45;
-      color: var(--text);
-    }
+    .task-text { font-size: 0.88rem; line-height: 1.45; color: var(--text); }
 
     /* ── Notes card ── */
     .notes-card {
@@ -270,26 +277,22 @@
       font-weight: 700;
       color: #92400e;
       margin-bottom: 8px;
-      display: flex; align-items: center; gap: 5px;
     }
-    .notes-card ul {
-      list-style: none;
-      display: flex; flex-direction: column; gap: 6px;
-    }
-    .notes-card li {
-      font-size: 0.82rem;
-      color: #78350f;
-      display: flex; gap: 8px; align-items: flex-start;
-    }
-    .notes-card li::before {
-      content: '•';
-      color: var(--warning);
-      font-weight: 700;
-      flex-shrink: 0;
-    }
+    .notes-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .notes-card li { font-size: 0.82rem; color: #78350f; display: flex; gap: 8px; align-items: flex-start; }
+    .notes-card li::before { content: '•'; color: var(--warning); font-weight: 700; flex-shrink: 0; }
 
-    /* ── Desk detail modal-like panel ── */
-    .detail-panel {
+    /* ── Shared bottom sheet ── */
+    .sheet-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.38);
+      z-index: 99;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+
+    .bottom-sheet {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       background: var(--card);
@@ -298,52 +301,47 @@
       z-index: 100;
       transform: translateY(100%);
       transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
-      max-height: 82vh;
+      max-height: 85vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
-    .detail-panel.open { transform: translateY(0); }
-    .detail-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      z-index: 99;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .detail-overlay.open { opacity: 1; pointer-events: all; }
-    .detail-handle {
+    .bottom-sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
       width: 36px; height: 4px;
       background: var(--border);
       border-radius: 99px;
       margin: 12px auto 0;
     }
-    .detail-header {
+    .sheet-header {
       padding: 16px 20px 12px;
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; gap: 12px;
     }
-    .detail-desk-num {
+    .sheet-header-icon {
       width: 48px; height: 48px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.4rem;
       font-weight: 800;
+      flex-shrink: 0;
     }
-    .detail-desk-info h2 { font-size: 1rem; font-weight: 700; }
-    .detail-desk-info p { font-size: 0.78rem; color: var(--text-sub); margin-top: 2px; }
-    .detail-content { padding: 16px 20px 32px; }
-    .detail-section-title {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-sub);
-      margin: 16px 0 8px;
+    .sheet-header-info h2 { font-size: 1rem; font-weight: 700; }
+    .sheet-header-info p { font-size: 0.78rem; color: var(--text-sub); margin-top: 2px; }
+    .sheet-header-actions { margin-left: auto; }
+    .sheet-edit-btn {
+      background: var(--bg);
+      border: none;
+      border-radius: 99px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
     }
-    .detail-section-title:first-child { margin-top: 0; }
+    .sheet-content { padding: 16px 20px 36px; }
 
-    /* progress bar */
+    /* ── Progress bar ── */
     .progress-wrap {
       background: var(--bg);
       border-radius: 99px;
@@ -355,7 +353,7 @@
       height: 100%;
       background: linear-gradient(90deg, var(--primary), #7b5ea7);
       border-radius: 99px;
-      transition: width 0.4s ease;
+      transition: width 0.5s ease;
     }
     .progress-label {
       font-size: 0.72rem;
@@ -364,7 +362,124 @@
       display: flex; justify-content: space-between;
     }
 
-    /* ── Floating today button ── */
+    /* ── Section label inside sheet ── */
+    .sec-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-sub);
+      margin: 16px 0 8px;
+    }
+    .sec-label:first-child { margin-top: 0; }
+
+    /* ── Score display ── */
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .score-circle {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #7b5ea7);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .score-num { color: #fff; font-size: 1.3rem; font-weight: 800; line-height: 1; }
+    .score-pts { color: rgba(255,255,255,0.8); font-size: 0.6rem; font-weight: 600; }
+    .score-info { flex: 1; }
+    .score-title-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .score-title-emoji { font-size: 1.2rem; }
+    .score-title-text { font-size: 0.95rem; font-weight: 700; }
+    .score-detail { font-size: 0.75rem; color: var(--text-sub); line-height: 1.6; }
+
+    /* ── Special badge ── */
+    .special-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #7c5200;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-top: 4px;
+    }
+
+    /* ── History list ── */
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-month { font-size: 0.82rem; font-weight: 700; min-width: 64px; }
+    .history-title-chip {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--bg);
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .history-score {
+      margin-left: auto;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    /* ── Leaderboard ── */
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-rank {
+      font-size: 1.3rem;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .lb-dot {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name { font-size: 0.92rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-meta { font-size: 0.72rem; color: var(--text-sub); margin-top: 2px; }
+    .lb-score-col { text-align: right; flex-shrink: 0; }
+    .lb-total { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+    .lb-avg { font-size: 0.68rem; color: var(--text-sub); }
+
+    /* ── Monthly stats (stats sheet) ── */
+    .stat-month-header {
+      background: linear-gradient(135deg, var(--primary), #7b5ea7);
+      border-radius: 14px;
+      padding: 16px;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    .stat-month-header h3 { font-size: 1rem; font-weight: 700; }
+    .stat-month-header p { font-size: 0.8rem; opacity: 0.85; margin-top: 3px; }
+
+    /* ── FAB group ── */
     .fab {
       position: fixed;
       bottom: 24px;
@@ -382,12 +497,13 @@
       display: flex; align-items: center; gap: 7px;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    .fab:active { transform: scale(0.95); box-shadow: 0 2px 10px rgba(79,124,255,0.3); }
+    .fab:active { transform: scale(0.95); }
 
-    /* responsive: wider screens */
     @media (min-width: 480px) {
       .content { max-width: 440px; margin: 0 auto; }
-      .app-header { text-align: center; }
+      .app-header { text-align: left; }
+      .bottom-sheet { max-width: 480px; left: 50%; transform: translateX(-50%) translateY(100%); }
+      .bottom-sheet.open { transform: translateX(-50%) translateY(0); }
     }
   </style>
 </head>
@@ -395,8 +511,16 @@
 
 <!-- Header -->
 <div class="app-header">
-  <h1>辦公室值日生</h1>
-  <div class="subtitle">六桌順時鐘每月輪值</div>
+  <div class="header-top">
+    <div>
+      <h1>辦公室值日生</h1>
+      <div class="subtitle">六桌順時鐘每月輪值</div>
+    </div>
+    <div class="header-actions">
+      <button class="header-btn" id="statsBtn" title="本月統計">📊</button>
+      <button class="header-btn" id="lbBtn" title="排行榜">🏆</button>
+    </div>
+  </div>
   <div class="month-nav">
     <button id="prevBtn" aria-label="上個月">&#8592;</button>
     <span class="month-label" id="monthLabel"></span>
@@ -407,18 +531,15 @@
 <!-- Main content -->
 <div class="content">
 
-  <!-- Desk grid -->
   <div class="section-title">本月桌次與值日桌</div>
   <div class="desk-grid" id="deskGrid"></div>
 
-  <!-- Rotation order -->
   <div class="section-title">順時鐘輪值順序</div>
   <div class="rotation-wrap">
     <div class="rotation-row" id="rotationRow"></div>
     <div class="rotation-note">&#x1f501; 每月向右輪轉一格，依序循環</div>
   </div>
 
-  <!-- Task checklist -->
   <div class="section-title">任務清單</div>
   <div class="task-panel">
     <div class="task-tabs">
@@ -428,7 +549,6 @@
     <div class="task-list" id="taskList"></div>
   </div>
 
-  <!-- Notes -->
   <div class="section-title">補充與備註</div>
   <div class="notes-card">
     <div class="note-title">&#x26a0;&#xfe0f; 注意事項</div>
@@ -439,33 +559,58 @@
 
 </div>
 
-<!-- Desk detail bottom sheet -->
-<div class="detail-overlay" id="overlay"></div>
-<div class="detail-panel" id="detailPanel">
-  <div class="detail-handle"></div>
-  <div class="detail-header">
-    <div class="detail-desk-num" id="detailNum"></div>
-    <div class="detail-desk-info">
+<!-- Shared overlay -->
+<div class="sheet-overlay" id="overlay"></div>
+
+<!-- Desk detail sheet -->
+<div class="bottom-sheet" id="detailSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-header-icon" id="detailIcon"></div>
+    <div class="sheet-header-info">
       <h2 id="detailTitle"></h2>
       <p id="detailSub"></p>
     </div>
+    <div class="sheet-header-actions">
+      <button class="sheet-edit-btn" id="editNameBtn">✏️ 改名</button>
+    </div>
   </div>
-  <div class="detail-content" id="detailContent"></div>
+  <div class="sheet-content" id="detailContent"></div>
+</div>
+
+<!-- Monthly stats sheet -->
+<div class="bottom-sheet" id="statsSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-header-icon" style="background:#e8f4ff;color:#2e86de;">📊</div>
+    <div class="sheet-header-info">
+      <h2 id="statsTitle">本月統計結算</h2>
+      <p id="statsSub"></p>
+    </div>
+  </div>
+  <div class="sheet-content" id="statsContent"></div>
+</div>
+
+<!-- Leaderboard sheet -->
+<div class="bottom-sheet" id="lbSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-header-icon" style="background:#fff7e6;color:#e89020;">🏆</div>
+    <div class="sheet-header-info">
+      <h2>累積排行榜</h2>
+      <p id="lbSub"></p>
+    </div>
+  </div>
+  <div class="sheet-content" id="lbContent"></div>
 </div>
 
 <!-- FAB -->
 <button class="fab" id="todayBtn">&#x1f4c5; 回到本月</button>
 
 <script>
-  // ── Data ──────────────────────────────────────────────────────────────────
-  const DESKS = [
-    { id: 1, name: '1號桌' },
-    { id: 2, name: '2號桌' },
-    { id: 3, name: '3號桌' },
-    { id: 4, name: '4號桌' },
-    { id: 5, name: '5號桌' },
-    { id: 6, name: '6號桌' },
-  ];
+  // ── Constants ──────────────────────────────────────────────────────────────
+  const BASE_YEAR = 2026;
+  const BASE_MONTH = 1;
 
   const DESK_COLORS = [
     { bg: '#fff0f0', text: '#e55353' },
@@ -475,6 +620,8 @@
     { bg: '#f5f0ff', text: '#7b5ea7' },
     { bg: '#fff0f8', text: '#d63384' },
   ];
+
+  const DEFAULT_NAMES = ['1號桌', '2號桌', '3號桌', '4號桌', '5號桌', '6號桌'];
 
   const DAILY_TASKS = [
     '整理前一天報紙',
@@ -495,51 +642,126 @@
   ];
 
   // ── State ─────────────────────────────────────────────────────────────────
-  // Base month: 2026-01 → desk 1 is duty (index 0 offset)
-  const BASE_YEAR = 2026;
-  const BASE_MONTH = 1; // January
-
   let viewYear, viewMonth;
   let activeTab = 'daily';
-  let taskState = { daily: {}, weekly: {} }; // { taskIndex: bool }
+  let taskState = { daily: {}, weekly: {} };
   let selectedDesk = null;
+  let openSheet = null; // 'detail' | 'stats' | 'lb'
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Desk names ────────────────────────────────────────────────────────────
+  function getDeskNames() {
+    return JSON.parse(localStorage.getItem('desk_names') || 'null') || [...DEFAULT_NAMES];
+  }
+  function saveDeskNames(names) {
+    localStorage.setItem('desk_names', JSON.stringify(names));
+  }
+
+  // ── Rotation helpers ──────────────────────────────────────────────────────
   function monthDiff(y, m) {
     return (y - BASE_YEAR) * 12 + (m - BASE_MONTH);
   }
-
   function dutyDeskIndex(y, m) {
     const diff = monthDiff(y, m);
-    return ((diff % 6) + 6) % 6; // 0-based, clockwise
+    return ((diff % 6) + 6) % 6;
   }
-
   function formatMonth(y, m) {
     return `${y} 年 ${m} 月`;
   }
 
-  function isCurrentMonth(y, m) {
-    const now = new Date();
-    return y === now.getFullYear() && m === (now.getMonth() + 1);
-  }
-
+  // ── Task storage ──────────────────────────────────────────────────────────
   function storageKey(y, m, tab) {
     return `duty_${y}_${m}_${tab}`;
   }
-
   function loadTaskState(y, m) {
-    taskState.daily = JSON.parse(localStorage.getItem(storageKey(y, m, 'daily')) || '{}');
+    taskState.daily  = JSON.parse(localStorage.getItem(storageKey(y, m, 'daily'))  || '{}');
     taskState.weekly = JSON.parse(localStorage.getItem(storageKey(y, m, 'weekly')) || '{}');
   }
-
   function saveTaskState(y, m) {
-    localStorage.setItem(storageKey(y, m, 'daily'), JSON.stringify(taskState.daily));
+    localStorage.setItem(storageKey(y, m, 'daily'),  JSON.stringify(taskState.daily));
     localStorage.setItem(storageKey(y, m, 'weekly'), JSON.stringify(taskState.weekly));
   }
-
   function doneCount(tab) {
-    const state = taskState[tab];
-    return Object.values(state).filter(Boolean).length;
+    return Object.values(taskState[tab]).filter(Boolean).length;
+  }
+
+  // ── Scoring ───────────────────────────────────────────────────────────────
+  function calcScore(y, m) {
+    const daily  = JSON.parse(localStorage.getItem(storageKey(y, m, 'daily'))  || '{}');
+    const weekly = JSON.parse(localStorage.getItem(storageKey(y, m, 'weekly')) || '{}');
+    const dDone = Object.values(daily).filter(Boolean).length;
+    const wDone = Object.values(weekly).filter(Boolean).length;
+    return {
+      dDone, wDone,
+      score: Math.round((dDone / 6) * 50 + (wDone / 6) * 50),
+    };
+  }
+
+  // Scan all localStorage for historical duty data
+  function getAllHistory() {
+    const results = [];
+    const re = /^duty_(\d+)_(\d+)_daily$/;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const m = key && key.match(re);
+      if (!m) continue;
+      const y = parseInt(m[1]), mo = parseInt(m[2]);
+      const deskIdx = dutyDeskIndex(y, mo);
+      const { dDone, wDone, score } = calcScore(y, mo);
+      results.push({ y, m: mo, deskIdx, dDone, wDone, score });
+    }
+    results.sort((a, b) => a.y !== b.y ? a.y - b.y : a.m - b.m);
+    return results;
+  }
+
+  function getTitle(score) {
+    if (score === 100) return { emoji: '🏆', text: '值日模範' };
+    if (score >= 80)   return { emoji: '⭐', text: '認真負責' };
+    if (score >= 50)   return { emoji: '😊', text: '普通表現' };
+    if (score >= 1)    return { emoji: '😅', text: '需要加油' };
+    return { emoji: '😴', text: '懶鬼值日' };
+  }
+
+  function getSpecialTitle(history, deskIdx) {
+    const mine = history.filter(h => h.deskIdx === deskIdx);
+    let streak = 0, maxStreak = 0;
+    for (const h of mine) {
+      if (h.score === 100) { maxStreak = Math.max(maxStreak, ++streak); }
+      else streak = 0;
+    }
+    if (maxStreak >= 3) return { emoji: '🔥', text: '三連王' };
+    return null;
+  }
+
+  function getLeaderboard() {
+    const history = getAllHistory();
+    const names = getDeskNames();
+    const desks = Array.from({ length: 6 }, (_, i) => ({
+      idx: i, name: names[i],
+      total: 0, turns: 0, scores: [],
+    }));
+
+    for (const h of history) {
+      desks[h.deskIdx].total += h.score;
+      desks[h.deskIdx].turns++;
+      desks[h.deskIdx].scores.push(h.score);
+    }
+
+    // Determine 守護神 (top scorer with ≥2 turns)
+    let guardian = -1;
+    let guardianScore = -1;
+    for (const d of desks) {
+      if (d.turns >= 2 && d.total > guardianScore) {
+        guardianScore = d.total;
+        guardian = d.idx;
+      }
+    }
+
+    return desks.map(d => {
+      const avg = d.turns > 0 ? Math.round(d.total / d.turns) : 0;
+      const special = getSpecialTitle(history, d.idx)
+        || (d.idx === guardian ? { emoji: '👑', text: '辦公室守護神' } : null);
+      return { ...d, avg, special };
+    }).sort((a, b) => b.total !== a.total ? b.total - a.total : b.avg - a.avg);
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -549,26 +771,29 @@
 
   function renderDeskGrid() {
     const duty = dutyDeskIndex(viewYear, viewMonth);
+    const names = getDeskNames();
     const grid = document.getElementById('deskGrid');
     grid.innerHTML = '';
 
-    DESKS.forEach((desk, i) => {
+    for (let i = 0; i < 6; i++) {
       const isDuty = i === duty;
       const color = DESK_COLORS[i];
       const card = document.createElement('div');
-      card.className = `desk-card color-${i}${selectedDesk === i ? ' selected' : ''}`;
+      card.className = `desk-card${selectedDesk === i ? ' selected' : ''}`;
       card.innerHTML = `
-        <div class="desk-number" style="background:${color.bg};color:${color.text}">${desk.id}</div>
-        <div class="desk-name">${desk.name}</div>
+        <div class="desk-number" style="background:${color.bg};color:${color.text}">${i + 1}</div>
+        <div class="desk-person">${names[i]}</div>
+        <div class="desk-label">${i + 1} 號桌</div>
         ${isDuty ? '<span class="duty-badge">值日桌 ✓</span>' : ''}
       `;
-      card.addEventListener('click', () => openDetail(i));
+      card.addEventListener('click', () => openDetailSheet(i));
       grid.appendChild(card);
-    });
+    }
   }
 
   function renderRotation() {
     const duty = dutyDeskIndex(viewYear, viewMonth);
+    const names = getDeskNames();
     const row = document.getElementById('rotationRow');
     row.innerHTML = '';
 
@@ -582,7 +807,6 @@
         <span>${i === 0 ? '本月' : `+${i}月`}</span>
       `;
       row.appendChild(chip);
-
       if (i < 5) {
         const arrow = document.createElement('span');
         arrow.className = 'rotation-arrow';
@@ -597,17 +821,13 @@
     list.innerHTML = '';
     const tasks = activeTab === 'daily' ? DAILY_TASKS : WEEKLY_TASKS;
     const state = taskState[activeTab];
-    const total = tasks.length;
-    const done = doneCount(activeTab);
 
     tasks.forEach((task, i) => {
       const isDone = !!state[i];
       const item = document.createElement('div');
       item.className = `task-item${isDone ? ' done' : ''}`;
       item.innerHTML = `
-        <div class="task-check" data-i="${i}">
-          <span class="task-check-icon">✓</span>
-        </div>
+        <div class="task-check"><span class="task-check-icon">✓</span></div>
         <div class="task-num">${i + 1}</div>
         <div class="task-text">${task}</div>
       `;
@@ -630,88 +850,226 @@
     renderTasks();
   }
 
-  // ── Interactions ──────────────────────────────────────────────────────────
+  // ── Task interaction ──────────────────────────────────────────────────────
   function toggleTask(i) {
-    const state = taskState[activeTab];
-    state[i] = !state[i];
+    taskState[activeTab][i] = !taskState[activeTab][i];
     saveTaskState(viewYear, viewMonth);
     renderTasks();
   }
 
-  function openDetail(deskIdx) {
+  // ── Sheet management ──────────────────────────────────────────────────────
+  function openSheet(sheetId) {
+    closeAllSheets(false);
+    document.getElementById(sheetId).classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+    openSheet = sheetId;
+  }
+
+  function closeAllSheets(clearSelected = true) {
+    ['detailSheet', 'statsSheet', 'lbSheet'].forEach(id => {
+      document.getElementById(id).classList.remove('open');
+    });
+    document.getElementById('overlay').classList.remove('open');
+    openSheet = null;
+    if (clearSelected) {
+      selectedDesk = null;
+      renderDeskGrid();
+    }
+  }
+
+  // ── Detail sheet ──────────────────────────────────────────────────────────
+  function openDetailSheet(deskIdx) {
     selectedDesk = deskIdx;
     renderDeskGrid();
 
+    const names = getDeskNames();
     const duty = dutyDeskIndex(viewYear, viewMonth);
-    const desk = DESKS[deskIdx];
     const color = DESK_COLORS[deskIdx];
     const isDuty = deskIdx === duty;
-
-    // Compute when this desk's next duty is
     const monthsUntil = ((deskIdx - duty) % 6 + 6) % 6;
+
     let dutyInfo;
     if (monthsUntil === 0) {
-      dutyInfo = `本月 (${formatMonth(viewYear, viewMonth)}) 值日桌 ✓`;
+      dutyInfo = `本月值日桌 (${formatMonth(viewYear, viewMonth)}) ✓`;
     } else {
       let fy = viewYear, fm = viewMonth + monthsUntil;
       while (fm > 12) { fm -= 12; fy++; }
       dutyInfo = `${monthsUntil} 個月後輪到 (${formatMonth(fy, fm)})`;
     }
 
-    document.getElementById('detailNum').textContent = desk.id;
-    document.getElementById('detailNum').style.background = color.bg;
-    document.getElementById('detailNum').style.color = color.text;
-    document.getElementById('detailTitle').textContent = desk.name;
+    const icon = document.getElementById('detailIcon');
+    icon.textContent = deskIdx + 1;
+    icon.style.background = color.bg;
+    icon.style.color = color.text;
+
+    document.getElementById('detailTitle').textContent = names[deskIdx];
     document.getElementById('detailSub').textContent = dutyInfo;
 
-    // Progress
-    const dDone = doneCount('daily');
-    const wDone = doneCount('weekly');
-    const dTotal = DAILY_TASKS.length;
-    const wTotal = WEEKLY_TASKS.length;
-
+    // Build content
+    const history = getAllHistory();
+    const deskHistory = history.filter(h => h.deskIdx === deskIdx);
     let html = '';
 
+    // Current month progress (only if duty)
     if (isDuty) {
+      const dDone = doneCount('daily');
+      const wDone = doneCount('weekly');
+      const score = Math.round((dDone / 6) * 50 + (wDone / 6) * 50);
+      const title = getTitle(score);
       html += `
-        <div class="detail-section-title">每日任務進度</div>
-        <div class="progress-label"><span>已完成 ${dDone}/${dTotal}</span><span>${Math.round(dDone/dTotal*100)}%</span></div>
-        <div class="progress-wrap"><div class="progress-bar" style="width:${dDone/dTotal*100}%"></div></div>
-
-        <div class="detail-section-title">每週任務進度</div>
-        <div class="progress-label"><span>已完成 ${wDone}/${wTotal}</span><span>${Math.round(wDone/wTotal*100)}%</span></div>
-        <div class="progress-wrap"><div class="progress-bar" style="width:${wDone/wTotal*100}%"></div></div>
+        <div class="sec-label">本月得分</div>
+        <div class="score-row">
+          <div class="score-circle">
+            <div class="score-num">${score}</div>
+            <div class="score-pts">分</div>
+          </div>
+          <div class="score-info">
+            <div class="score-title-row">
+              <span class="score-title-emoji">${title.emoji}</span>
+              <span class="score-title-text">${title.text}</span>
+            </div>
+            <div class="score-detail">每日：${dDone}/6 完成<br>每週：${wDone}/6 完成</div>
+          </div>
+        </div>
+        <div class="sec-label">每日任務進度</div>
+        <div class="progress-label"><span>已完成 ${dDone}/6</span><span>${Math.round(dDone/6*100)}%</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${dDone/6*100}%"></div></div>
+        <div class="sec-label">每週任務進度</div>
+        <div class="progress-label"><span>已完成 ${wDone}/6</span><span>${Math.round(wDone/6*100)}%</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${wDone/6*100}%"></div></div>
       `;
     }
 
-    html += `<div class="detail-section-title">每日任務</div>`;
-    DAILY_TASKS.forEach((t, i) => {
-      const done = isDuty && !!taskState.daily[i];
-      html += `<div class="task-item${done ? ' done' : ''}">
-        <div class="task-num">${i+1}</div>
-        <div class="task-text">${t}</div>
-      </div>`;
-    });
-
-    html += `<div class="detail-section-title">每週任務</div>`;
-    WEEKLY_TASKS.forEach((t, i) => {
-      const done = isDuty && !!taskState.weekly[i];
-      html += `<div class="task-item${done ? ' done' : ''}">
-        <div class="task-num">${i+1}</div>
-        <div class="task-text">${t}</div>
-      </div>`;
-    });
+    // Historical records
+    if (deskHistory.length > 0) {
+      const special = getSpecialTitle(history, deskIdx);
+      html += `<div class="sec-label">歷史輪值記錄</div>`;
+      if (special) {
+        html += `<span class="special-badge">${special.emoji} ${special.text}</span><br><br>`;
+      }
+      for (const h of [...deskHistory].reverse()) {
+        const t = getTitle(h.score);
+        html += `<div class="history-item">
+          <div class="history-month">${h.y}/${h.m}</div>
+          <div class="history-title-chip">${t.emoji} ${t.text}</div>
+          <div class="history-score">${h.score} 分</div>
+        </div>`;
+      }
+    } else if (!isDuty) {
+      html += `<div style="color:var(--text-sub);font-size:0.85rem;padding:12px 0;">尚無輪值記錄</div>`;
+    }
 
     document.getElementById('detailContent').innerHTML = html;
-    document.getElementById('detailPanel').classList.add('open');
+
+    document.getElementById('editNameBtn').onclick = () => {
+      const newName = prompt(`請輸入 ${deskIdx + 1} 號桌的名稱：`, names[deskIdx]);
+      if (newName !== null && newName.trim() !== '') {
+        const n = getDeskNames();
+        n[deskIdx] = newName.trim();
+        saveDeskNames(n);
+        renderAll();
+        document.getElementById('detailTitle').textContent = newName.trim();
+      }
+    };
+
+    document.getElementById('detailSheet').classList.add('open');
     document.getElementById('overlay').classList.add('open');
   }
 
-  function closeDetail() {
-    selectedDesk = null;
-    document.getElementById('detailPanel').classList.remove('open');
-    document.getElementById('overlay').classList.remove('open');
-    renderDeskGrid();
+  // ── Stats sheet ───────────────────────────────────────────────────────────
+  function openStatsSheet() {
+    document.getElementById('statsSub').textContent = formatMonth(viewYear, viewMonth);
+    const duty = dutyDeskIndex(viewYear, viewMonth);
+    const names = getDeskNames();
+    const color = DESK_COLORS[duty];
+    const { dDone, wDone, score } = calcScore(viewYear, viewMonth);
+    const title = getTitle(score);
+    const history = getAllHistory();
+    const special = getSpecialTitle(history, duty);
+
+    let html = `
+      <div class="stat-month-header">
+        <h3>${formatMonth(viewYear, viewMonth)} 值日桌：${duty + 1} 號 / ${names[duty]}</h3>
+        <p>本月得分：${score} 分 ${title.emoji} ${title.text}</p>
+      </div>
+      <div class="score-row">
+        <div class="score-circle">
+          <div class="score-num">${score}</div>
+          <div class="score-pts">/ 100</div>
+        </div>
+        <div class="score-info">
+          <div class="score-title-row">
+            <span class="score-title-emoji">${title.emoji}</span>
+            <span class="score-title-text">${title.text}</span>
+          </div>
+          ${special ? `<span class="special-badge">${special.emoji} ${special.text}</span>` : ''}
+          <div class="score-detail" style="margin-top:4px">每日任務：${dDone}/6<br>每週任務：${wDone}/6</div>
+        </div>
+      </div>
+      <div class="sec-label">每日任務完成狀況</div>
+      <div class="progress-label"><span>${dDone} / 6 項完成</span><span>${Math.round(dDone/6*100)}%</span></div>
+      <div class="progress-wrap"><div class="progress-bar" style="width:${dDone/6*100}%"></div></div>
+      <div class="sec-label">每週任務完成狀況</div>
+      <div class="progress-label"><span>${wDone} / 6 項完成</span><span>${Math.round(wDone/6*100)}%</span></div>
+      <div class="progress-wrap"><div class="progress-bar" style="width:${wDone/6*100}%"></div></div>
+    `;
+
+    // All months history summary
+    const allHistory = getAllHistory();
+    if (allHistory.length > 0) {
+      html += `<div class="sec-label">所有月份記錄</div>`;
+      for (const h of [...allHistory].reverse()) {
+        const t = getTitle(h.score);
+        const n = names[h.deskIdx];
+        const c = DESK_COLORS[h.deskIdx];
+        html += `<div class="history-item">
+          <div style="width:22px;height:22px;border-radius:50%;background:${c.bg};color:${c.text};display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0">${h.deskIdx+1}</div>
+          <div class="history-month" style="min-width:56px">${h.y}/${h.m}</div>
+          <div style="font-size:0.78rem;color:var(--text-sub);flex:1">${n}</div>
+          <div class="history-title-chip">${t.emoji} ${t.text}</div>
+          <div class="history-score">${h.score}</div>
+        </div>`;
+      }
+    }
+
+    document.getElementById('statsContent').innerHTML = html;
+    document.getElementById('statsSheet').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+
+  // ── Leaderboard sheet ─────────────────────────────────────────────────────
+  function openLbSheet() {
+    const lb = getLeaderboard();
+    const totalMonths = getAllHistory().length;
+    document.getElementById('lbSub').textContent = `共 ${totalMonths} 個月記錄`;
+
+    const medals = ['🥇', '🥈', '🥉'];
+    let html = '';
+
+    lb.forEach((d, rank) => {
+      const color = DESK_COLORS[d.idx];
+      const rankDisplay = rank < 3 ? medals[rank] : `${rank + 1}`;
+      html += `<div class="lb-row">
+        <div class="lb-rank">${rankDisplay}</div>
+        <div class="lb-dot" style="background:${color.bg};color:${color.text}">${d.idx + 1}</div>
+        <div class="lb-info">
+          <div class="lb-name">${d.name}</div>
+          <div class="lb-meta">輪值 ${d.turns} 次 · 平均 ${d.avg} 分${d.special ? ` · ${d.special.emoji}${d.special.text}` : ''}</div>
+        </div>
+        <div class="lb-score-col">
+          <div class="lb-total">${d.total}</div>
+          <div class="lb-avg">累積分</div>
+        </div>
+      </div>`;
+    });
+
+    if (totalMonths === 0) {
+      html = `<div style="color:var(--text-sub);font-size:0.85rem;padding:16px 0;text-align:center">尚無任何月份的任務記錄<br>完成任務後即可累積分數！</div>`;
+    }
+
+    document.getElementById('lbContent').innerHTML = html;
+    document.getElementById('lbSheet').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
   }
 
   // ── Event listeners ───────────────────────────────────────────────────────
@@ -737,7 +1095,12 @@
     renderAll();
   });
 
-  document.getElementById('overlay').addEventListener('click', closeDetail);
+  document.getElementById('statsBtn').addEventListener('click', openStatsSheet);
+  document.getElementById('lbBtn').addEventListener('click', openLbSheet);
+
+  document.getElementById('overlay').addEventListener('click', () => {
+    closeAllSheets(true);
+  });
 
   document.querySelectorAll('.task-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -747,13 +1110,15 @@
     });
   });
 
-  // Swipe down to close detail panel
+  // Swipe down to close any sheet
   let touchStartY = 0;
-  const panel = document.getElementById('detailPanel');
-  panel.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
-  panel.addEventListener('touchend', e => {
-    if (e.changedTouches[0].clientY - touchStartY > 80) closeDetail();
-  }, { passive: true });
+  ['detailSheet', 'statsSheet', 'lbSheet'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener('touchend', e => {
+      if (e.changedTouches[0].clientY - touchStartY > 80) closeAllSheets(true);
+    }, { passive: true });
+  });
 
   // ── Init ──────────────────────────────────────────────────────────────────
   (function init() {
