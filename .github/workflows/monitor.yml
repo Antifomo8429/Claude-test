@@ -87,18 +87,17 @@ jobs:
           soup = BeautifulSoup(r.text, "lxml")
           for inp in soup.find_all(["input", "select"]):
               print(inp.get("name"), inp.get("type"), inp.get("value","")[:50])
-          form_data = {"encodeURIComponent":"1","step":"1","firstin":"1","off":"1","keyword":"發行","co_id":"","TYPEK":"all"}
-          r2 = s.post(url, data=form_data, timeout=20)
-          print("\n=== POST status:", r2.status_code, "===")
-          soup2 = BeautifulSoup(r2.text, "lxml")
-          tables = soup2.find_all("table")
-          print("table 數量:", len(tables))
-          for i, t in enumerate(tables[:3]):
-              rows = t.find_all("tr")
-              print(f"\ntable[{i}] rows={len(rows)}")
-              for row in rows[:3]:
-                  cells = row.find_all(["td","th"])
-                  print("  cells:", [c.get_text(strip=True)[:20] for c in cells])
+          # 嘗試多種 step 值
+          for step_val in ["1", "2"]:
+              form_data = {"step": step_val, "keyword": "發行", "co_id": "", "TYPEK": "all", "LEG": "TW", "RADIO_CM": "1", "AN": "1", "SDATE": "", "EDATE": ""}
+              r2 = s.post(url, data=form_data, timeout=20)
+              print(f"\n=== POST step={step_val} status:{r2.status_code} len:{len(r2.text)} ===")
+              soup2 = BeautifulSoup(r2.text, "lxml")
+              tables = soup2.find_all("table")
+              print("table 數量:", len(tables))
+              # 印出 body 前 800 字看結構
+              body = soup2.find("body")
+              print("body 前800字:", (body.get_text(separator=" ", strip=True) if body else r2.text)[:800])
           EOF
 
       - name: Run monitor (single pass)
