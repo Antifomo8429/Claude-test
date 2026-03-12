@@ -16,8 +16,11 @@ import sys
 import time
 from pathlib import Path
 
+import urllib3
 import requests
 from bs4 import BeautifulSoup
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ── 路徑設定 ──────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
@@ -73,6 +76,7 @@ def save_seen(seen: set) -> None:
 def make_session() -> requests.Session:
     session = requests.Session()
     session.headers.update(BROWSER_HEADERS)
+    session.verify = False  # MOPS 憑證缺少 Subject Key Identifier，需略過驗證
     return session
 
 
