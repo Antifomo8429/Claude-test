@@ -87,6 +87,39 @@ python monitor.py --once
 
 ---
 
+## 使用 GitHub Actions 自動排程（推薦，免費、免主機）
+
+把專案 push 到 GitHub 後，設定 Secrets 即可每 5 分鐘自動執行，不需要自己的主機。
+
+### 步驟 1：設定 GitHub Secrets
+
+進入 GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**
+
+| Secret 名稱 | 填入內容 |
+|---|---|
+| `KEYWORDS` | 監控關鍵字，多個用逗號分隔，例如 `興達,再生能源` |
+| `NOTIFY_METHOD` | `discord`、`telegram` 或 `line` |
+| `DISCORD_WEBHOOK` | Discord Webhook URL（使用 Discord 時填入） |
+| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token（使用 Telegram 時填入） |
+| `TELEGRAM_CHAT_ID` | Telegram Chat ID（使用 Telegram 時填入） |
+| `LINE_NOTIFY_TOKEN` | LINE Notify Token（使用 LINE 時填入） |
+
+> `config.json` **不需要** 放進 repo，Workflow 會自動從 Secrets 產生。
+
+### 步驟 2：啟用 Actions
+
+1. 進入 GitHub repo → **Actions**
+2. 首次使用需點 **I understand my workflows, go ahead and enable them**
+3. 點選左側 **MOPS 公告監控 → Run workflow** 手動測試一次
+
+### 運作方式
+
+- 每 5 分鐘自動執行 `python monitor.py --once`
+- 執行完後將 `seen_announcements.json` commit 回 repo，避免重複通知
+- 免費方案：公開 repo 無限制；私有 repo 每月 2000 分鐘，每月約消耗 300 分鐘
+
+---
+
 ## 使用 cron 自動排程（Linux / macOS）
 
 ```bash
