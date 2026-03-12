@@ -2,7 +2,7 @@
 """
 MOPS 公告關鍵字追蹤器
 監控台灣公開資訊觀測站 (https://mopsov.twse.com.tw/mops/web/ezsearch)，
-當搜尋結果出現新公告時透過 Telegram 或 LINE Notify 發送通知。
+當搜尋結果出現新公告時透過 Discord Webhook、Telegram 或 LINE Notify 發送通知。
 
 用法:
   python monitor.py           # 持續輪詢
@@ -201,6 +201,24 @@ def notify_telegram(matches: list[dict], keyword: str, cfg: dict) -> None:
         log.error("Telegram 通知失敗：%s", e)
 
 
+def notify_discord(matches: list[dict], keyword: str, cfg: dict) -> None:
+    webhook_url = cfg.get("webhook_url", "")
+    if not webhook_url or webhook_url == "YOUR_DISCORD_WEBHOOK_URL":
+        log.warning("Discord Webhook 設定未填寫，略過通知")
+        return
+
+    content = format_message(matches, keyword)
+    # Discord 單則訊息上限 2000 字元
+    for chunk in [content[i:i+2000] for i in range(0, len(content), 2000)]:
+        try:
+            resp = requests.post(webhook_url, json={"content": chunk}, timeout=10)
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            log.error("Discord 通知失敗：%s", e)
+            return
+    log.info("Discord 通知已發送（關鍵字：%s，%d 筆）", keyword, len(matches))
+
+
 def notify_line(matches: list[dict], keyword: str, cfg: dict) -> None:
     token = cfg.get("token", "")
     if not token or token == "YOUR_LINE_NOTIFY_TOKEN":
@@ -223,7 +241,9 @@ def notify_line(matches: list[dict], keyword: str, cfg: dict) -> None:
 
 def notify(matches: list[dict], keyword: str, config: dict) -> None:
     method = config.get("notify_method", "console")
-    if method == "telegram":
+    if method == "discord":
+        notify_discord(matches, keyword, config.get("discord", {}))
+    elif method == "telegram":
         notify_telegram(matches, keyword, config.get("telegram", {}))
     elif method == "line":
         notify_line(matches, keyword, config.get("line_notify", {}))

@@ -1,0 +1,19 @@
+# 不上傳個人設定（含 Webhook URL / Token）
+config.json
+
+# 不上傳已讀公告快取
+seen_announcements.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# 系統檔
+.DS_Store
+Thumbs.db
