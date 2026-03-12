@@ -1,0 +1,16 @@
+{
+  "keywords": ["興達", "再生能源"],
+  "check_interval_seconds": 300,
+  "notify_method": "discord",
+  "discord": {
+    "webhook_url": "https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+  },
+  "telegram": {
+    "bot_token": "YOUR_BOT_TOKEN",
+    "chat_id": "YOUR_CHAT_ID"
+  },
+  "line_notify": {
+    "token": "YOUR_LINE_NOTIFY_TOKEN"
+  },
+  "mops_url": "https://mopsov.twse.com.tw/mops/web/ezsearch"
+}

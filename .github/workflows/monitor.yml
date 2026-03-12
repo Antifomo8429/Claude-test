@@ -1,0 +1,79 @@
+name: MOPS 公告監控
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # 每 5 分鐘執行一次
+  workflow_dispatch:         # 允許手動觸發
+
+permissions:
+  contents: write            # 允許 commit seen_announcements.json 回 repo
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # 使用 PAT 以便後面能 push 回 main
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 lxml
+
+      - name: Build config.json from secrets
+        env:
+          NOTIFY_METHOD: ${{ secrets.NOTIFY_METHOD }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
+          KEYWORDS: ${{ secrets.KEYWORDS }}
+        run: |
+          python - <<'EOF'
+          import json, os
+
+          keywords_raw = os.environ.get("KEYWORDS", "發行")
+          keywords = [k.strip() for k in keywords_raw.split(",") if k.strip()]
+
+          config = {
+              "mops_url": "https://mopsov.twse.com.tw/mops/web/ezsearch",
+              "keywords": keywords,
+              "check_interval_seconds": 300,
+              "notify_method": os.environ.get("NOTIFY_METHOD", "console"),
+              "discord": {
+                  "webhook_url": os.environ.get("DISCORD_WEBHOOK", "")
+              },
+              "telegram": {
+                  "bot_token": os.environ.get("TELEGRAM_BOT_TOKEN", ""),
+                  "chat_id": os.environ.get("TELEGRAM_CHAT_ID", "")
+              },
+              "line_notify": {
+                  "token": os.environ.get("LINE_NOTIFY_TOKEN", "")
+              }
+          }
+
+          with open("config.json", "w", encoding="utf-8") as f:
+              json.dump(config, f, ensure_ascii=False, indent=2)
+
+          print("config.json 建立完成，keywords:", keywords)
+          EOF
+
+      - name: Run monitor (single pass)
+        run: python monitor.py --once
+
+      - name: Save seen_announcements.json back to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add seen_announcements.json
+          # 只有檔案有變動才 commit（避免空 commit）
+          git diff --staged --quiet || git commit -m "chore: update seen_announcements [skip ci]"
+          git push
