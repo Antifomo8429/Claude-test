@@ -1,0 +1,13 @@
+{
+  "keywords": ["請輸入關鍵字一", "請輸入關鍵字二"],
+  "check_interval_seconds": 300,
+  "notify_method": "telegram",
+  "telegram": {
+    "bot_token": "YOUR_BOT_TOKEN",
+    "chat_id": "YOUR_CHAT_ID"
+  },
+  "line_notify": {
+    "token": "YOUR_LINE_NOTIFY_TOKEN"
+  },
+  "mops_url": "https://mopsov.twse.com.tw/mops/web/ezsearch"
+}
