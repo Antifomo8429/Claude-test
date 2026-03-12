@@ -66,6 +66,41 @@ jobs:
           print("config.json 建立完成，keywords:", keywords)
           EOF
 
+      - name: Debug HTML structure
+        run: |
+          python - <<'EOF'
+          import requests, urllib3
+          urllib3.disable_warnings()
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123.0.0.0 Safari/537.36",
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Language": "zh-TW,zh;q=0.9",
+              "Referer": "https://mopsov.twse.com.tw/mops/web/ezsearch",
+          }
+          s = requests.Session()
+          s.headers.update(headers)
+          s.verify = False
+          url = "https://mopsov.twse.com.tw/mops/web/ezsearch"
+          r = s.get(url, timeout=15)
+          print("=== GET form fields ===")
+          from bs4 import BeautifulSoup
+          soup = BeautifulSoup(r.text, "lxml")
+          for inp in soup.find_all(["input", "select"]):
+              print(inp.get("name"), inp.get("type"), inp.get("value","")[:50])
+          form_data = {"encodeURIComponent":"1","step":"1","firstin":"1","off":"1","keyword":"發行","co_id":"","TYPEK":"all"}
+          r2 = s.post(url, data=form_data, timeout=20)
+          print("\n=== POST status:", r2.status_code, "===")
+          soup2 = BeautifulSoup(r2.text, "lxml")
+          tables = soup2.find_all("table")
+          print("table 數量:", len(tables))
+          for i, t in enumerate(tables[:3]):
+              rows = t.find_all("tr")
+              print(f"\ntable[{i}] rows={len(rows)}")
+              for row in rows[:3]:
+                  cells = row.find_all(["td","th"])
+                  print("  cells:", [c.get_text(strip=True)[:20] for c in cells])
+          EOF
+
       - name: Run monitor (single pass)
         run: python monitor.py --once
 
