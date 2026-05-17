@@ -103,11 +103,11 @@ jobs:
       - name: Run monitor (single pass)
         run: python monitor.py --once
 
-      - name: Save seen_announcements.json back to repo
+      - name: Save status files back to repo
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f seen_announcements.json
+          git add -f seen_announcements.json status.json
           # 只有檔案有變動才 commit（避免空 commit）
-          git diff --staged --quiet || git commit -m "chore: update seen_announcements [skip ci]"
+          git diff --staged --quiet || git commit -m "chore: update monitor status [skip ci]"
           git push

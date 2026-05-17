@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOPS 監控儀表板</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-sub: #8b949e;
+      --green: #3fb950;
+      --red: #f85149;
+      --yellow: #d29922;
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header h1 .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    .header h1 .dot.error { background: var(--red); box-shadow: 0 0 8px var(--red); }
+    .header h1 .dot.warning { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .header-meta {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      text-align: right;
+    }
+    .refresh-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: background 0.15s;
+    }
+    .refresh-btn:hover { background: var(--border); }
+
+    /* ── Grid layout ── */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 800px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red   { color: var(--red); }
+    .stat-value.yellow{ color: var(--yellow); }
+    .stat-value.blue  { color: var(--blue); }
+    .stat-label { font-size: 0.78rem; color: var(--text-sub); }
+
+    /* ── Section header ── */
+    .section-header {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-sub);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      word-break: break-word;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge-green  { background: rgba(63,185,80,.18); color: var(--green); }
+    .badge-red    { background: rgba(248,81,73,.18);  color: var(--red); }
+    .badge-yellow { background: rgba(210,153,34,.18); color: var(--yellow); }
+    .badge-blue   { background: rgba(88,166,255,.18); color: var(--blue); }
+    .badge-gray   { background: rgba(139,148,158,.15);color: var(--text-sub); }
+
+    /* ── Keyword tags ── */
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      background: rgba(88,166,255,.12);
+      border: 1px solid rgba(88,166,255,.25);
+      color: var(--blue);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin: 3px 3px 3px 0;
+    }
+
+    /* ── Log list ── */
+    .log-item {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .log-item:last-child { border-bottom: none; }
+    .log-time { color: var(--text-sub); white-space: nowrap; min-width: 130px; font-size: 0.76rem; }
+    .log-content { flex: 1; }
+    .log-company { color: var(--blue); font-weight: 600; }
+    .log-keyword { font-size: 0.72rem; color: var(--text-sub); margin-top: 2px; }
+
+    /* ── Error list ── */
+    .error-item {
+      padding: 8px 12px;
+      border-left: 3px solid var(--red);
+      background: rgba(248,81,73,.07);
+      margin-bottom: 6px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.82rem;
+      color: var(--red);
+    }
+
+    /* ── Loading / empty states ── */
+    .loading, .empty {
+      padding: 32px;
+      text-align: center;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Commit hash ── */
+    .hash {
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: var(--purple);
+      background: rgba(188,140,255,.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .full-card { grid-column: 1 / -1; }
+    .run-duration { color: var(--text-sub); font-size: 0.76rem; }
+    .commit-msg { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="dot" id="status-dot"></span> MOPS 監控儀表板</h1>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="header-meta" id="last-updated">載入中...</span>
+    <button class="refresh-btn" onclick="loadAll()">重新整理</button>
+  </div>
+</div>
+
+<!-- Summary stats -->
+<div class="grid-4" id="stats-grid">
+  <div class="card"><div class="card-title">上次執行</div><div class="stat-value blue" id="stat-time">—</div><div class="stat-label" id="stat-status">載入中</div></div>
+  <div class="card"><div class="card-title">執行狀態</div><div class="stat-value" id="stat-run">—</div><div class="stat-label" id="stat-duration">—</div></div>
+  <div class="card"><div class="card-title">本次新公告</div><div class="stat-value green" id="stat-new">—</div><div class="stat-label">筆</div></div>
+  <div class="card"><div class="card-title">累計追蹤</div><div class="stat-value blue" id="stat-total">—</div><div class="stat-label">則公告</div></div>
+</div>
+
+<!-- Keywords + errors -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">監控關鍵字</div>
+    <div id="keywords-container"><span class="stat-label">載入中...</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">最近錯誤</div>
+    <div id="errors-container"><span class="stat-label">—</span></div>
+  </div>
+</div>
+
+<!-- Workflow runs -->
+<div class="section-header">Actions 執行歷史</div>
+<div class="card" style="margin-bottom:24px">
+  <div class="table-wrap">
+    <table id="runs-table">
+      <thead><tr>
+        <th>結果</th><th>觸發方式</th><th>執行時間</th><th>耗時</th><th>連結</th>
+      </tr></thead>
+      <tbody id="runs-body"><tr><td colspan="5" class="loading"><span class="spinner"></span>載入中...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Recent announcements + commits side by side -->
+<div class="grid-2">
+  <div>
+    <div class="section-header">近期捕獲公告</div>
+    <div class="card" id="announcements-card">
+      <div class="loading"><span class="spinner"></span>載入中...</div>
+    </div>
+  </div>
+  <div>
+    <div class="section-header">近期 Commit 紀錄</div>
+    <div class="card" id="commits-card">
+      <div class="loading"><span class="spinner"></span>載入中...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const REPO = 'antifomo8429/claude-test';
+const GH_API = 'https://api.github.com/repos/' + REPO;
+
+function fmtDateTW(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function timeDiff(iso) {
+  if (!iso) return '';
+  const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (diff < 60) return diff + ' 秒前';
+  if (diff < 3600) return Math.floor(diff/60) + ' 分鐘前';
+  if (diff < 86400) return Math.floor(diff/3600) + ' 小時前';
+  return Math.floor(diff/86400) + ' 天前';
+}
+
+function secToStr(s) {
+  if (!s && s !== 0) return '—';
+  if (s < 60) return s.toFixed(1) + ' 秒';
+  return Math.floor(s/60) + ' 分 ' + (s%60).toFixed(0) + ' 秒';
+}
+
+function runDuration(start, end) {
+  if (!start || !end) return '—';
+  return secToStr((new Date(end) - new Date(start)) / 1000);
+}
+
+async function safeFetch(url, opts = {}) {
+  try {
+    const r = await fetch(url, opts);
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } catch { return null; }
+}
+
+// ── Status panel ─────────────────────────────────────────────────────────────
+async function loadStatus() {
+  const data = await safeFetch('./status.json');
+  const dot = document.getElementById('status-dot');
+  const statTime = document.getElementById('stat-time');
+  const statStatus = document.getElementById('stat-status');
+  const statRun = document.getElementById('stat-run');
+  const statDuration = document.getElementById('stat-duration');
+  const statNew = document.getElementById('stat-new');
+  const statTotal = document.getElementById('stat-total');
+  const kwContainer = document.getElementById('keywords-container');
+  const errContainer = document.getElementById('errors-container');
+
+  if (!data) {
+    dot.className = 'dot warning';
+    statTime.textContent = '—';
+    statStatus.textContent = '找不到 status.json（尚未執行過？）';
+    statRun.textContent = '—';
+    kwContainer.innerHTML = '<span class="stat-label">尚無資料</span>';
+    errContainer.innerHTML = '<span class="stat-label">—</span>';
+    return;
+  }
+
+  const status = data.status || 'unknown';
+  dot.className = 'dot' + (status === 'success' ? '' : status === 'error' ? ' error' : ' warning');
+
+  // Last run time display
+  const runTime = new Date(data.last_run_utc);
+  const hours = runTime.getUTCHours().toString().padStart(2,'0');
+  const mins  = runTime.getUTCMinutes().toString().padStart(2,'0');
+  statTime.textContent = hours + ':' + mins;
+  statStatus.textContent = fmtDateTW(data.last_run_utc) + '（' + timeDiff(data.last_run_utc) + '）';
+
+  const statusMap = { success: ['成功', 'green'], error: ['失敗', 'red'], partial: ['部分失敗', 'yellow'] };
+  const [label, cls] = statusMap[status] || ['未知', 'gray'];
+  statRun.textContent = label;
+  statRun.className = 'stat-value ' + cls;
+  statDuration.textContent = '耗時 ' + secToStr(data.duration_seconds);
+
+  statNew.textContent = data.new_count ?? 0;
+  statTotal.textContent = data.total_seen ?? 0;
+
+  // Keywords
+  const kws = data.keywords || [];
+  if (kws.length) {
+    kwContainer.innerHTML = kws.map(k => `<span class="tag">${k}</span>`).join('');
+  } else {
+    kwContainer.innerHTML = '<span class="stat-label">未設定</span>';
+  }
+
+  // Errors
+  const errs = data.errors || [];
+  if (errs.length) {
+    errContainer.innerHTML = errs.map(e => `<div class="error-item">${e}</div>`).join('');
+  } else {
+    errContainer.innerHTML = '<span class="badge badge-green">無錯誤</span>';
+  }
+}
+
+// ── GitHub Actions runs ───────────────────────────────────────────────────────
+async function loadRuns() {
+  const tbody = document.getElementById('runs-body');
+  const data = await safeFetch(`${GH_API}/actions/runs?per_page=15`);
+
+  if (!data || !data.workflow_runs || !data.workflow_runs.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">無法載入（可能需要設定 public repo 或 token）</td></tr>';
+    return;
+  }
+
+  const rows = data.workflow_runs.slice(0, 12).map(run => {
+    const conclusion = run.conclusion;
+    const badgeMap = {
+      success: 'badge-green', failure: 'badge-red', cancelled: 'badge-gray',
+      skipped: 'badge-gray', timed_out: 'badge-yellow', action_required: 'badge-yellow',
+    };
+    const labelMap = {
+      success: '成功', failure: '失敗', cancelled: '取消', skipped: '略過',
+      timed_out: '逾時', action_required: '需要操作', null: '執行中',
+    };
+    const badgeCls = badgeMap[conclusion] || 'badge-blue';
+    const badgeLabel = labelMap[conclusion] !== undefined ? labelMap[conclusion] : (conclusion || '執行中');
+    const triggerMap = { push: 'Push', schedule: '排程', workflow_dispatch: '手動', pull_request: 'PR' };
+    const trigger = triggerMap[run.event] || run.event;
+    const dur = runDuration(run.run_started_at, run.updated_at);
+    return `<tr>
+      <td><span class="badge ${badgeCls}">${badgeLabel}</span></td>
+      <td>${trigger}</td>
+      <td>${fmtDateTW(run.run_started_at)}<br><small style="color:var(--text-sub)">${timeDiff(run.run_started_at)}</small></td>
+      <td class="run-duration">${dur}</td>
+      <td><a href="${run.html_url}" target="_blank" rel="noopener">查看</a></td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows.join('');
+}
+
+// ── Seen announcements ────────────────────────────────────────────────────────
+async function loadAnnouncements() {
+  const card = document.getElementById('announcements-card');
+  const data = await safeFetch('./seen_announcements.json');
+
+  if (!data || !data.length) {
+    card.innerHTML = '<div class="empty">尚無公告紀錄</div>';
+    return;
+  }
+
+  // seen_announcements.json 儲存的是 ID 字串陣列（格式：公司代號_日期_標題前20字）
+  // 取最後 20 筆倒序顯示
+  const items = [...data].reverse().slice(0, 20);
+  const html = items.map(id => {
+    const parts = id.split('_');
+    const coId = parts[0] || '';
+    const date = parts[1] || '';
+    const title = parts.slice(2).join('_') || id;
+    return `<div class="log-item">
+      <div class="log-time">${date}</div>
+      <div class="log-content">
+        <div class="log-company">${coId}</div>
+        <div class="log-keyword">${title}</div>
+      </div>
+    </div>`;
+  }).join('');
+  card.innerHTML = html || '<div class="empty">—</div>';
+}
+
+// ── Commits ───────────────────────────────────────────────────────────────────
+async function loadCommits() {
+  const card = document.getElementById('commits-card');
+  const data = await safeFetch(`${GH_API}/commits?per_page=20`);
+
+  if (!data || !data.length) {
+    card.innerHTML = '<div class="empty">無法載入 Commit 紀錄</div>';
+    return;
+  }
+
+  const html = data.slice(0, 15).map(c => {
+    const sha = c.sha.slice(0, 7);
+    const msg = c.commit.message.split('\n')[0];
+    const author = c.commit.author.name;
+    const date = c.commit.author.date;
+    const isBot = author.includes('bot') || author.includes('actions');
+    return `<div class="log-item">
+      <div class="log-time">
+        <a class="hash" href="${c.html_url}" target="_blank" rel="noopener">${sha}</a><br>
+        <span style="font-size:0.73rem;color:var(--text-sub)">${timeDiff(date)}</span>
+      </div>
+      <div class="log-content">
+        <div class="commit-msg" title="${msg}">${msg}</div>
+        <div class="log-keyword" style="margin-top:3px">
+          ${isBot ? `<span class="badge badge-gray">${author}</span>` : `<span class="badge badge-blue">${author}</span>`}
+          &nbsp;${fmtDateTW(date)}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  card.innerHTML = html;
+}
+
+// ── Last updated ticker ───────────────────────────────────────────────────────
+function updateTicker() {
+  document.getElementById('last-updated').textContent = '更新於 ' + new Date().toLocaleTimeString('zh-TW');
+}
+
+async function loadAll() {
+  await Promise.all([loadStatus(), loadRuns(), loadAnnouncements(), loadCommits()]);
+  updateTicker();
+}
+
+// Auto-refresh every 5 minutes
+loadAll();
+setInterval(loadAll, 5 * 60 * 1000);
+</script>
+</body>
+</html>

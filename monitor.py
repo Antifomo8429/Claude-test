@@ -14,6 +14,7 @@ import json
 import logging
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import urllib3
@@ -26,6 +27,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 BASE_DIR = Path(__file__).parent
 CONFIG_FILE = BASE_DIR / "config.json"
 SEEN_FILE = BASE_DIR / "seen_announcements.json"
+STATUS_FILE = BASE_DIR / "status.json"
 
 # ── 瀏覽器 Headers（避免 403）────────────────────────────────────────────────
 BROWSER_HEADERS = {
@@ -58,6 +60,21 @@ def load_config() -> dict:
 
 
 # ── 已見公告狀態 ──────────────────────────────────────────────────────────────
+
+def save_status(status: str, keywords: list, new_count: int, total_seen: int,
+                duration: float, errors: list) -> None:
+    data = {
+        "last_run_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "status": status,
+        "keywords": keywords,
+        "new_count": new_count,
+        "total_seen": total_seen,
+        "duration_seconds": round(duration, 2),
+        "errors": errors,
+    }
+    with STATUS_FILE.open("w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
 
 def load_seen() -> set:
     if not SEEN_FILE.exists():
@@ -262,11 +279,17 @@ def check_once(config: dict, session: requests.Session, seen: set) -> set:
     """執行一輪所有關鍵字的檢查，回傳更新後的 seen set。"""
     url = config.get("mops_url", "https://mopsov.twse.com.tw/mops/web/ezsearch")
     keywords = config.get("keywords", [])
+    start_time = time.time()
+    total_new = 0
+    errors: list[str] = []
+    run_status = "success"
 
     for keyword in keywords:
         log.info("檢查關鍵字：%s", keyword)
         html = fetch_search_results(session, url, keyword)
         if html is None:
+            errors.append(f"無法取得頁面（關鍵字：{keyword}）")
+            run_status = "partial"
             continue
 
         announcements = parse_announcements(html, keyword)
@@ -274,13 +297,23 @@ def check_once(config: dict, session: requests.Session, seen: set) -> set:
 
         if new_matches:
             log.info("發現 %d 則新公告（關鍵字：%s），發送通知", len(new_matches), keyword)
-            notify(new_matches, keyword, config)
+            try:
+                notify(new_matches, keyword, config)
+            except Exception as e:
+                errors.append(f"通知失敗（關鍵字：{keyword}）：{e}")
+                run_status = "partial"
             for m in new_matches:
                 seen.add(m["id"])
+            total_new += len(new_matches)
         else:
             log.info("無新公告（關鍵字：%s）", keyword)
 
+    if errors and total_new == 0:
+        run_status = "error"
+
     save_seen(seen)
+    save_status(run_status, keywords, total_new, len(seen),
+                time.time() - start_time, errors)
     return seen
 
 
